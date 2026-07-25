@@ -64,31 +64,4 @@ export const QUESTS: Quest[] = [
     time: 'Long',
     cost: 'Budget',
   },
-  {
-    id: 'solo-cinema-premiere',
-    title: 'Solo Cinema Premiere',
-    description:
-      'Treat yourself to a front-row seat at a movie you would never normally pick, with the largest popcorn on the menu.',
-    category: 'Entertainment',
-    time: 'Medium',
-    cost: 'Splurge',
-  },
-  {
-    id: 'lucky-dip-recipe',
-    title: 'Lucky Dip Recipe',
-    description:
-      'Grab three random ingredients from your pantry and challenge yourself to invent a snack around them in ten minutes.',
-    category: 'Miscellaneous',
-    time: 'Short',
-    cost: 'Free',
-  },
-  {
-    id: 'gallery-day-out',
-    title: 'Spontaneous Gallery Day',
-    description:
-      'Book a same-day ticket to a museum or exhibit, wander every room, and jot down the one piece that stuck with you.',
-    category: 'Entertainment',
-    time: 'Long',
-    cost: 'Splurge',
-  },
 ]
