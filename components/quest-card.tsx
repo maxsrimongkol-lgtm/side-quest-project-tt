@@ -1,4 +1,17 @@
-import { Clock, Wallet, Tag } from 'lucide-react'
+import {
+  Smile,
+  ListChecks,
+  Users,
+  Clapperboard,
+  Shapes,
+  Rabbit,
+  Clock,
+  Hourglass,
+  Gift,
+  Coins,
+  Gem,
+  type LucideIcon,
+} from 'lucide-react'
 
 import {
   Card,
@@ -7,9 +20,39 @@ import {
   CardFooter,
 } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { TIME_HINTS, type Quest } from '@/lib/quests'
+import {
+  TIME_HINTS,
+  type Category,
+  type Cost,
+  type Quest,
+  type TimeCommitment,
+} from '@/lib/quests'
+
+const CATEGORY_ICONS: Record<Category, LucideIcon> = {
+  Wellness: Smile,
+  Productivity: ListChecks,
+  Social: Users,
+  Entertainment: Clapperboard,
+  Miscellaneous: Shapes,
+}
+
+const TIME_ICONS: Record<TimeCommitment, LucideIcon> = {
+  Short: Rabbit,
+  Medium: Clock,
+  Long: Hourglass,
+}
+
+const COST_ICONS: Record<Cost, LucideIcon> = {
+  Free: Gift,
+  Budget: Coins,
+  Splurge: Gem,
+}
 
 export function QuestCard({ quest }: { quest: Quest }) {
+  const CategoryIcon = CATEGORY_ICONS[quest.category]
+  const TimeIcon = TIME_ICONS[quest.time]
+  const CostIcon = COST_ICONS[quest.cost]
+
   return (
     <li className="h-full list-none">
       <Card className="h-full">
@@ -26,18 +69,18 @@ export function QuestCard({ quest }: { quest: Quest }) {
           </CardContent>
           <CardFooter className="flex flex-wrap gap-2">
             <Badge variant="default">
-              <Tag aria-hidden="true" />
+              <CategoryIcon aria-hidden="true" />
               {quest.category}
             </Badge>
             <Badge variant="secondary">
-              <Clock aria-hidden="true" />
+              <TimeIcon aria-hidden="true" />
               <span>
                 {quest.time}
                 <span className="sr-only">{`, ${TIME_HINTS[quest.time]}`}</span>
               </span>
             </Badge>
             <Badge variant="outline">
-              <Wallet aria-hidden="true" />
+              <CostIcon aria-hidden="true" />
               {quest.cost}
             </Badge>
           </CardFooter>

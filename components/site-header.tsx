@@ -1,4 +1,4 @@
-import { Compass } from 'lucide-react'
+import { Footprints } from 'lucide-react'
 
 export function SiteHeader() {
   return (
@@ -8,7 +8,7 @@ export function SiteHeader() {
           aria-hidden="true"
           className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground"
         >
-          <Compass className="size-5" />
+          <Footprints className="size-5" />
         </span>
         <div className="flex flex-col">
           <h1 className="font-serif text-lg font-bold leading-tight text-foreground text-balance sm:text-xl">
