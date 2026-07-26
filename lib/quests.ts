@@ -36,6 +36,32 @@ export const TIME_HINTS: Record<TimeCommitment, string> = {
   Long: 'Half a day+',
 }
 
+export const CATEGORY_IMAGES: Record<
+  Category,
+  { src: string; alt: string }
+> = {
+  Wellness: {
+    src: '/quests/wellness.png',
+    alt: 'Illustration of a person doing a sunrise yoga stretch on a mat in soft morning light',
+  },
+  Productivity: {
+    src: '/quests/productivity.png',
+    alt: 'Illustration of a tidy desk with a laptop showing an empty inbox and a checklist',
+  },
+  Social: {
+    src: '/quests/social.png',
+    alt: 'Illustration of two friends chatting over coffee cups at a cozy cafe table',
+  },
+  Entertainment: {
+    src: '/quests/entertainment.png',
+    alt: 'Illustration of a cinema scene with a movie clapperboard and a bucket of popcorn',
+  },
+  Miscellaneous: {
+    src: '/quests/miscellaneous.png',
+    alt: 'Illustration of a mystery grab bag filled with assorted playful shapes and a question mark',
+  },
+}
+
 export const QUESTS: Quest[] = [
   {
     id: 'sunrise-stretch',

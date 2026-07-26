@@ -69,7 +69,7 @@ export function FilterPanel({
               key={category}
               value={category}
               aria-label={`Filter by ${category}`}
-              className="rounded-full"
+              className="rounded-full aria-pressed:border-primary! aria-pressed:bg-primary! aria-pressed:text-primary-foreground! aria-pressed:hover:bg-primary/90!"
             >
               {category}
             </ToggleGroupItem>
@@ -93,7 +93,7 @@ export function FilterPanel({
               key={option}
               value={option}
               aria-label={`Filter by ${option} time commitment`}
-              className="rounded-full"
+              className="rounded-full aria-pressed:border-primary! aria-pressed:bg-primary! aria-pressed:text-primary-foreground! aria-pressed:hover:bg-primary/90!"
             >
               {option}
             </ToggleGroupItem>
@@ -117,7 +117,7 @@ export function FilterPanel({
               key={option}
               value={option}
               aria-label={`Filter by ${option} cost`}
-              className="rounded-full"
+              className="rounded-full aria-pressed:border-primary! aria-pressed:bg-primary! aria-pressed:text-primary-foreground! aria-pressed:hover:bg-primary/90!"
             >
               {option}
             </ToggleGroupItem>

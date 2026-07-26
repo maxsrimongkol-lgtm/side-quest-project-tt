@@ -1,31 +1,56 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import { Shuffle } from 'lucide-react'
 
 import { SiteHeader } from '@/components/site-header'
 import { FilterPanel } from '@/components/filter-panel'
 import { QuestCard } from '@/components/quest-card'
+import { QuestDialog } from '@/components/quest-dialog'
+import { Button } from '@/components/ui/button'
 import {
   QUESTS,
   type Category,
   type Cost,
+  type Quest,
   type TimeCommitment,
 } from '@/lib/quests'
+
+function shuffle<T>(items: T[]): T[] {
+  const arr = [...items]
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[arr[i], arr[j]] = [arr[j], arr[i]]
+  }
+  return arr
+}
 
 export default function Page() {
   const [categories, setCategories] = useState<Category[]>([])
   const [time, setTime] = useState<TimeCommitment | null>(null)
   const [cost, setCost] = useState<Cost | null>(null)
+  const [shuffleKey, setShuffleKey] = useState(0)
+
+  const [selectedQuest, setSelectedQuest] = useState<Quest | null>(null)
+  const [dialogOpen, setDialogOpen] = useState(false)
 
   const quests = useMemo(() => {
-    return QUESTS.filter((quest) => {
+    const filtered = QUESTS.filter((quest) => {
       const matchesCategory =
         categories.length === 0 || categories.includes(quest.category)
       const matchesTime = !time || quest.time === time
       const matchesCost = !cost || quest.cost === cost
       return matchesCategory && matchesTime && matchesCost
     })
-  }, [categories, time, cost])
+    return shuffleKey === 0 ? filtered : shuffle(filtered)
+    // shuffleKey re-triggers a reshuffle on demand
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [categories, time, cost, shuffleKey])
+
+  function handleSelect(quest: Quest) {
+    setSelectedQuest(quest)
+    setDialogOpen(true)
+  }
 
   return (
     <div className="min-h-svh bg-background">
@@ -40,6 +65,17 @@ export default function Page() {
           onCostChange={setCost}
         />
 
+        <div className="flex justify-center sm:justify-start">
+          <Button
+            size="lg"
+            onClick={() => setShuffleKey((key) => key + 1)}
+            className="w-full sm:w-auto"
+          >
+            <Shuffle aria-hidden="true" />
+            Shuffle Quests
+          </Button>
+        </div>
+
         <section aria-label="Suggested side quests">
           <div className="mb-4 flex items-baseline justify-between gap-4">
             <h2 className="font-serif text-xl font-bold text-foreground">
@@ -51,9 +87,16 @@ export default function Page() {
           </div>
 
           {quests.length > 0 ? (
-            <ul className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <ul
+              key={`${categories.join()}-${time}-${cost}-${shuffleKey}`}
+              className="grid grid-cols-1 gap-4 md:grid-cols-3"
+            >
               {quests.map((quest) => (
-                <QuestCard key={quest.id} quest={quest} />
+                <QuestCard
+                  key={quest.id}
+                  quest={quest}
+                  onSelect={handleSelect}
+                />
               ))}
             </ul>
           ) : (
@@ -66,6 +109,12 @@ export default function Page() {
           )}
         </section>
       </main>
+
+      <QuestDialog
+        quest={selectedQuest}
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+      />
     </div>
   )
 }

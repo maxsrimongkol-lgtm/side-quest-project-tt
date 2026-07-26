@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import {
   Smile,
   ListChecks,
@@ -21,6 +22,7 @@ import {
 } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import {
+  CATEGORY_IMAGES,
   TIME_HINTS,
   type Category,
   type Cost,
@@ -48,22 +50,38 @@ const COST_ICONS: Record<Cost, LucideIcon> = {
   Splurge: Gem,
 }
 
-export function QuestCard({ quest }: { quest: Quest }) {
+export function QuestCard({
+  quest,
+  onSelect,
+}: {
+  quest: Quest
+  onSelect: (quest: Quest) => void
+}) {
   const CategoryIcon = CATEGORY_ICONS[quest.category]
   const TimeIcon = TIME_ICONS[quest.time]
   const CostIcon = COST_ICONS[quest.cost]
+  const image = CATEGORY_IMAGES[quest.category]
 
   return (
-    <li className="h-full list-none">
-      <Card className="h-full">
+    <li className="h-full list-none animate-in fade-in-0 slide-in-from-bottom-2 duration-300">
+      <Card className="group relative h-full overflow-hidden pt-0 transition-shadow focus-within:ring-2 focus-within:ring-ring hover:shadow-lg">
         <article className="flex h-full flex-col">
-          <CardHeader>
+          <div className="relative aspect-[16/9] w-full overflow-hidden bg-muted">
+            <Image
+              src={image.src || "/placeholder.svg"}
+              alt={image.alt}
+              fill
+              sizes="(min-width: 768px) 33vw, 100vw"
+              className="object-cover transition-transform duration-300 group-hover:scale-105"
+            />
+          </div>
+          <CardHeader className="mt-4">
             <h3 className="font-serif text-lg font-semibold leading-snug text-card-foreground text-balance">
               {quest.title}
             </h3>
           </CardHeader>
           <CardContent className="flex-1">
-            <p className="leading-relaxed text-muted-foreground text-pretty">
+            <p className="line-clamp-3 leading-relaxed text-muted-foreground text-pretty">
               {quest.description}
             </p>
           </CardContent>
@@ -85,6 +103,12 @@ export function QuestCard({ quest }: { quest: Quest }) {
             </Badge>
           </CardFooter>
         </article>
+        <button
+          type="button"
+          onClick={() => onSelect(quest)}
+          className="absolute inset-0 z-10 rounded-xl outline-none"
+          aria-label={`View full details for ${quest.title}`}
+        />
       </Card>
     </li>
   )
