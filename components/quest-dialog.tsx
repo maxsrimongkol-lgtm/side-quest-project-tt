@@ -128,7 +128,7 @@ export function QuestDialog({
               </div>
             </div>
 
-            <DialogFooter>
+            <DialogFooter className="p-5 pt-0 sm:justify-center">
               <DialogClose
                 render={<Button variant="outline" />}
                 disabled={status === 'submitting'}
