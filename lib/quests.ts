@@ -34,9 +34,9 @@ export const CATEGORIES: Category[] = [
   'Miscellaneous',
 ]
 
-export const TIMES: TimeCommitment[] = ['Short', 'Medium']
+export const TIMES: TimeCommitment[] = ['Short', 'Medium', 'Long']
 
-export const COSTS: Cost[] = ['Free', 'Splurge']
+export const COSTS: Cost[] = ['Free', 'Budget', 'Splurge']
 
 export const TIME_HINTS: Record<TimeCommitment, string> = {
   Short: 'Under 30 min',
