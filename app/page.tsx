@@ -47,7 +47,7 @@ export default function Page() {
   )
 
   // Re-query Supabase whenever the active filters (or shuffle) change.
-  const { data, isLoading, error } = useSWR(
+  const { data, isLoading } = useSWR(
     ['quests', filters, shuffleKey],
     ([, activeFilters]) => fetchQuests(activeFilters),
     { keepPreviousData: true },
@@ -93,7 +93,7 @@ export default function Page() {
             <h2 className="font-serif text-xl font-bold text-foreground">
               Your Quests
             </h2>
-            {!isLoading && !error && (
+            {!isLoading && (
               <p className="text-sm text-muted-foreground" aria-live="polite">
                 {quests.length} {quests.length === 1 ? 'quest' : 'quests'}
               </p>
@@ -102,13 +102,6 @@ export default function Page() {
 
           {isLoading ? (
             <QuestGridSkeleton />
-          ) : error ? (
-            <div className="rounded-xl border border-dashed border-destructive/50 bg-card p-8 text-center">
-              <p className="text-sm text-muted-foreground text-pretty">
-                Something went wrong loading your quests. Please try shuffling
-                again.
-              </p>
-            </div>
           ) : quests.length > 0 ? (
             <ul
               key={`${categories.join()}-${time}-${cost}-${shuffleKey}`}
@@ -125,8 +118,7 @@ export default function Page() {
           ) : (
             <div className="rounded-xl border border-dashed border-border bg-card p-8 text-center">
               <p className="text-sm text-muted-foreground text-pretty">
-                No quests match your filters yet. Try loosening a filter to
-                reveal more adventures.
+                No quests found matching these filters
               </p>
             </div>
           )}

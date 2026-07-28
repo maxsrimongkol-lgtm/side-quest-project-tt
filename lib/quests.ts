@@ -34,9 +34,9 @@ export const CATEGORIES: Category[] = [
   'Miscellaneous',
 ]
 
-export const TIMES: TimeCommitment[] = ['Short', 'Medium', 'Long']
+export const TIMES: TimeCommitment[] = ['Short', 'Medium']
 
-export const COSTS: Cost[] = ['Free', 'Budget', 'Splurge']
+export const COSTS: Cost[] = ['Free', 'Splurge']
 
 export const TIME_HINTS: Record<TimeCommitment, string> = {
   Short: 'Under 30 min',
@@ -116,9 +116,11 @@ export async function fetchQuests(filters: QuestFilters): Promise<Quest[]> {
 
   const { data, error } = await query.limit(3)
 
+  console.log('Fetched Quests:', data)
+
   if (error) {
-    console.error('[v0] Failed to fetch quests from Supabase:', error.message)
-    throw error
+    console.error('Supabase Error:', error)
+    return []
   }
 
   return (data as QuestRow[]).map(mapRowToQuest)
