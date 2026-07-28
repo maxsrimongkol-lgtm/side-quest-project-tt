@@ -1,18 +1,4 @@
 import Image from 'next/image'
-import {
-  Smile,
-  ListChecks,
-  Users,
-  Clapperboard,
-  Shapes,
-  Rabbit,
-  Clock,
-  Hourglass,
-  Gift,
-  Coins,
-  Gem,
-  type LucideIcon,
-} from 'lucide-react'
 
 import {
   Card,
@@ -20,35 +6,8 @@ import {
   CardHeader,
   CardFooter,
 } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import {
-  CATEGORY_IMAGES,
-  TIME_HINTS,
-  type Category,
-  type Cost,
-  type Quest,
-  type TimeCommitment,
-} from '@/lib/quests'
-
-const CATEGORY_ICONS: Record<Category, LucideIcon> = {
-  Wellness: Smile,
-  Productivity: ListChecks,
-  Social: Users,
-  Entertainment: Clapperboard,
-  Miscellaneous: Shapes,
-}
-
-const TIME_ICONS: Record<TimeCommitment, LucideIcon> = {
-  Short: Rabbit,
-  Medium: Clock,
-  Long: Hourglass,
-}
-
-const COST_ICONS: Record<Cost, LucideIcon> = {
-  Free: Gift,
-  Budget: Coins,
-  Splurge: Gem,
-}
+import { QuestBadges } from '@/components/quest-badges'
+import { CATEGORY_IMAGES, type Quest } from '@/lib/quests'
 
 export function QuestCard({
   quest,
@@ -57,9 +16,6 @@ export function QuestCard({
   quest: Quest
   onSelect: (quest: Quest) => void
 }) {
-  const CategoryIcon = CATEGORY_ICONS[quest.category]
-  const TimeIcon = TIME_ICONS[quest.time]
-  const CostIcon = COST_ICONS[quest.cost]
   const image = CATEGORY_IMAGES[quest.category]
 
   return (
@@ -68,7 +24,7 @@ export function QuestCard({
         <article className="flex h-full flex-col">
           <div className="relative aspect-[16/9] w-full overflow-hidden bg-muted">
             <Image
-              src={image.src || "/placeholder.svg"}
+              src={image.src || '/placeholder.svg'}
               alt={image.alt}
               fill
               sizes="(min-width: 768px) 33vw, 100vw"
@@ -86,21 +42,7 @@ export function QuestCard({
             </p>
           </CardContent>
           <CardFooter className="flex flex-wrap gap-2">
-            <Badge variant="default">
-              <CategoryIcon aria-hidden="true" />
-              {quest.category}
-            </Badge>
-            <Badge variant="secondary">
-              <TimeIcon aria-hidden="true" />
-              <span>
-                {quest.time}
-                <span className="sr-only">{`, ${TIME_HINTS[quest.time]}`}</span>
-              </span>
-            </Badge>
-            <Badge variant="outline">
-              <CostIcon aria-hidden="true" />
-              {quest.cost}
-            </Badge>
+            <QuestBadges quest={quest} />
           </CardFooter>
         </article>
         <button

@@ -1,3 +1,5 @@
+import { createClient } from '@/lib/supabase/client'
+
 export type Category =
   | 'Wellness'
   | 'Productivity'
@@ -10,12 +12,18 @@ export type TimeCommitment = 'Short' | 'Medium' | 'Long'
 export type Cost = 'Free' | 'Budget' | 'Splurge'
 
 export type Quest = {
-  id: string
+  id: number
   title: string
   description: string
   category: Category
-  time: TimeCommitment
-  cost: Cost
+  time: TimeCommitment[]
+  cost: Cost[]
+}
+
+export type QuestFilters = {
+  categories: Category[]
+  times: TimeCommitment[]
+  costs: Cost[]
 }
 
 export const CATEGORIES: Category[] = [
@@ -62,32 +70,56 @@ export const CATEGORY_IMAGES: Record<
   },
 }
 
-export const QUESTS: Quest[] = [
-  {
-    id: 'sunrise-stretch',
-    title: 'Sunrise Stretch Session',
-    description:
-      'Roll out a mat, follow a 20-minute guided mobility flow, and greet the day with a clearer head and looser shoulders.',
-    category: 'Wellness',
-    time: 'Short',
-    cost: 'Free',
-  },
-  {
-    id: 'inbox-zero-sprint',
-    title: 'Inbox Zero Sprint',
-    description:
-      'Set a timer, triage every unread email, and unsubscribe from three lists you never read. Reclaim your attention.',
-    category: 'Productivity',
-    time: 'Medium',
-    cost: 'Free',
-  },
-  {
-    id: 'mystery-cafe-crawl',
-    title: 'Mystery Café Crawl',
-    description:
-      'Pick a neighborhood you rarely visit and taste-test the house drink at two spots you have never tried before.',
-    category: 'Social',
-    time: 'Long',
-    cost: 'Budget',
-  },
-]
+type QuestRow = {
+  id: number
+  title: string
+  description: string
+  category: string
+  time_estimate: string[] | null
+  cost: string[] | null
+}
+
+function mapRowToQuest(row: QuestRow): Quest {
+  return {
+    id: row.id,
+    title: row.title,
+    description: row.description,
+    category: row.category as Category,
+    time: (row.time_estimate ?? []) as TimeCommitment[],
+    cost: (row.cost ?? []) as Cost[],
+  }
+}
+
+/**
+ * Fetches up to 3 quests from Supabase, applying the active filters.
+ * - Category: exact match when a single category chip is selected (`.in` for multiple).
+ * - Time / Cost: `.overlaps()` so a quest matches if ANY of its tags are selected.
+ */
+export async function fetchQuests(filters: QuestFilters): Promise<Quest[]> {
+  const supabase = createClient()
+
+  let query = supabase
+    .from('quests')
+    .select('id, title, description, category, time_estimate, cost')
+
+  if (filters.categories.length > 0) {
+    query = query.in('category', filters.categories)
+  }
+
+  if (filters.times.length > 0) {
+    query = query.overlaps('time_estimate', filters.times)
+  }
+
+  if (filters.costs.length > 0) {
+    query = query.overlaps('cost', filters.costs)
+  }
+
+  const { data, error } = await query.limit(3)
+
+  if (error) {
+    console.error('[v0] Failed to fetch quests from Supabase:', error.message)
+    throw error
+  }
+
+  return (data as QuestRow[]).map(mapRowToQuest)
+}

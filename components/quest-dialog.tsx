@@ -15,8 +15,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { CATEGORY_IMAGES, TIME_HINTS, type Quest } from '@/lib/quests'
+import { QuestBadges } from '@/components/quest-badges'
+import { CATEGORY_IMAGES, type Quest } from '@/lib/quests'
 
 type SubmitState = 'idle' | 'submitting' | 'accepted'
 
@@ -119,12 +119,7 @@ export function QuestDialog({
                 className="flex flex-wrap gap-2"
                 aria-label="Quest details"
               >
-                <Badge variant="default">{quest.category}</Badge>
-                <Badge variant="secondary">
-                  {quest.time}
-                  <span className="sr-only">{`, ${TIME_HINTS[quest.time]}`}</span>
-                </Badge>
-                <Badge variant="outline">{quest.cost}</Badge>
+                <QuestBadges quest={quest} />
               </div>
             </div>
 
