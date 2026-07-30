@@ -99,7 +99,7 @@ export async function fetchQuests(filters: QuestFilters): Promise<Quest[]> {
   const supabase = createClient()
 
   let query = supabase
-    .from('quests')
+    .from('Quests')
     .select('id, title, description, category, time_estimate, cost')
 
   if (filters.categories.length > 0) {
