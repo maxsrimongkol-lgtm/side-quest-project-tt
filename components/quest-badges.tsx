@@ -10,6 +10,7 @@ import {
   Gift,
   Coins,
   Gem,
+  Tag,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -42,8 +43,22 @@ const COST_ICONS: Record<Cost, LucideIcon> = {
   Splurge: Gem,
 }
 
+/**
+ * Normalizes a tag array from Supabase into clean, individual values.
+ * Guards against malformed rows where multiple values were stored in a
+ * single string (e.g. ["Budget, Splurge"] instead of ["Budget", "Splurge"]).
+ */
+function normalizeTags(tags: string[] | null | undefined): string[] {
+  if (!tags) return []
+  return tags
+    .flatMap((tag) => (typeof tag === 'string' ? tag.split(',') : []))
+    .map((tag) => tag.trim())
+    .filter(Boolean)
+}
+
 export function QuestBadges({ quest }: { quest: Quest }) {
-  const CategoryIcon = CATEGORY_ICONS[quest.category]
+  // Fall back to a generic tag icon if a value isn't in our icon maps.
+  const CategoryIcon = CATEGORY_ICONS[quest.category] ?? Tag
 
   return (
     <>
@@ -51,20 +66,21 @@ export function QuestBadges({ quest }: { quest: Quest }) {
         <CategoryIcon aria-hidden="true" />
         {quest.category}
       </Badge>
-      {quest.time.map((time) => {
-        const TimeIcon = TIME_ICONS[time]
+      {normalizeTags(quest.time).map((time) => {
+        const TimeIcon = TIME_ICONS[time as TimeCommitment] ?? Tag
+        const hint = TIME_HINTS[time as TimeCommitment]
         return (
           <Badge key={time} variant="secondary">
             <TimeIcon aria-hidden="true" />
             <span>
               {time}
-              <span className="sr-only">{`, ${TIME_HINTS[time]}`}</span>
+              {hint ? <span className="sr-only">{`, ${hint}`}</span> : null}
             </span>
           </Badge>
         )
       })}
-      {quest.cost.map((cost) => {
-        const CostIcon = COST_ICONS[cost]
+      {normalizeTags(quest.cost).map((cost) => {
+        const CostIcon = COST_ICONS[cost as Cost] ?? Tag
         return (
           <Badge key={cost} variant="outline">
             <CostIcon aria-hidden="true" />
