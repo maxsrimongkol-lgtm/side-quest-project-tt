@@ -47,10 +47,10 @@ export default function Page() {
   )
 
   // Re-query Supabase whenever the active filters (or shuffle) change.
-  const { data, isLoading } = useSWR(
+  const { data, isLoading, error } = useSWR(
     ['quests', filters, shuffleKey],
     ([, activeFilters]) => fetchQuests(activeFilters),
-    { keepPreviousData: true },
+    { keepPreviousData: true, shouldRetryOnError: false },
   )
 
   const quests = useMemo(() => {
@@ -76,6 +76,20 @@ export default function Page() {
           onTimeChange={setTime}
           onCostChange={setCost}
         />
+
+        <div
+          className="flex flex-col gap-2 rounded-lg border border-border bg-card p-3 text-sm"
+          aria-live="polite"
+        >
+          <p className="font-medium text-foreground">
+            {`Total Quests Returned: ${isLoading ? '…' : quests.length}`}
+          </p>
+          {error ? (
+            <p className="rounded-md bg-destructive/15 px-3 py-2 font-mono text-xs text-destructive">
+              {`Supabase error: ${error.message}`}
+            </p>
+          ) : null}
+        </div>
 
         <div className="flex justify-center sm:justify-start">
           <Button

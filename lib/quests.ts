@@ -114,14 +114,22 @@ export async function fetchQuests(filters: QuestFilters): Promise<Quest[]> {
     query = query.overlaps('cost', filters.costs)
   }
 
-  const { data, error } = await query.limit(3)
+  try {
+    const { data, error } = await query.limit(3)
 
-  console.log('Fetched Quests:', data)
+    console.log('Fetched Quests:', data)
 
-  if (error) {
-    console.error('Supabase Error:', error)
-    return []
+    if (error) {
+      console.error('Supabase Error:', error)
+      throw new Error(error.message)
+    }
+
+    return (data as QuestRow[]).map(mapRowToQuest)
+  } catch (err) {
+    console.error('Supabase Error:', err)
+    // Re-throw a normalized Error so SWR can expose `error.message` to the UI.
+    throw err instanceof Error
+      ? err
+      : new Error('Unknown error while querying Supabase')
   }
-
-  return (data as QuestRow[]).map(mapRowToQuest)
 }
