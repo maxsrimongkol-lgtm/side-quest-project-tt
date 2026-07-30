@@ -11,6 +11,7 @@ import { QuestGridSkeleton } from '@/components/quest-card-skeleton'
 import { QuestDialog } from '@/components/quest-dialog'
 import { Button } from '@/components/ui/button'
 import {
+  CATEGORIES,
   fetchQuests,
   type Category,
   type Cost,
@@ -29,7 +30,7 @@ function shuffle<T>(items: T[]): T[] {
 }
 
 export default function Page() {
-  const [categories, setCategories] = useState<Category[]>([])
+  const [category, setCategory] = useState<Category>(CATEGORIES[0])
   const [time, setTime] = useState<TimeCommitment | null>(null)
   const [cost, setCost] = useState<Cost | null>(null)
   const [shuffleKey, setShuffleKey] = useState(0)
@@ -39,25 +40,35 @@ export default function Page() {
 
   const filters = useMemo<QuestFilters>(
     () => ({
-      categories,
+      category,
       times: time ? [time] : [],
       costs: cost ? [cost] : [],
     }),
-    [categories, time, cost],
+    [category, time, cost],
   )
 
-  // Re-query Supabase whenever the active filters (or shuffle) change.
-  const { data, isLoading, error } = useSWR(
-    ['quests', filters, shuffleKey],
+  // Re-query Supabase only when the active filters change. Shuffling reuses
+  // the already-fetched pool so it can cycle through every matching quest.
+  const { data, isLoading } = useSWR(
+    ['quests', filters],
     ([, activeFilters]) => fetchQuests(activeFilters),
     { keepPreviousData: true, shouldRetryOnError: false },
   )
 
+  // A stable random ordering of the full matching pool, regenerated only when
+  // the pool itself changes (i.e. when filters produce new data).
+  const shuffledPool = useMemo(() => shuffle(data ?? []), [data])
+
+  // Each shuffle advances a window of 3 through the shuffled pool, wrapping
+  // around so every quest is shown before any repeats.
   const quests = useMemo(() => {
-    if (!data) return []
-    return shuffleKey === 0 ? data : shuffle(data)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, shuffleKey])
+    if (shuffledPool.length <= 3) return shuffledPool
+    const start = (shuffleKey * 3) % shuffledPool.length
+    return Array.from(
+      { length: 3 },
+      (_, i) => shuffledPool[(start + i) % shuffledPool.length],
+    )
+  }, [shuffledPool, shuffleKey])
 
   function handleSelect(quest: Quest) {
     setSelectedQuest(quest)
@@ -69,27 +80,13 @@ export default function Page() {
       <SiteHeader />
       <main className="mx-auto flex max-w-5xl flex-col gap-6 px-4 py-6 sm:px-6 sm:py-8">
         <FilterPanel
-          categories={categories}
+          category={category}
           time={time}
           cost={cost}
-          onCategoriesChange={setCategories}
+          onCategoryChange={setCategory}
           onTimeChange={setTime}
           onCostChange={setCost}
         />
-
-        <div
-          className="flex flex-col gap-2 rounded-lg border border-border bg-card p-3 text-sm"
-          aria-live="polite"
-        >
-          <p className="font-medium text-foreground">
-            {`Total Quests Returned: ${isLoading ? '…' : quests.length}`}
-          </p>
-          {error ? (
-            <p className="rounded-md bg-destructive/15 px-3 py-2 font-mono text-xs text-destructive">
-              {`Supabase error: ${error.message}`}
-            </p>
-          ) : null}
-        </div>
 
         <div className="flex justify-center sm:justify-start">
           <Button
@@ -118,7 +115,7 @@ export default function Page() {
             <QuestGridSkeleton />
           ) : quests.length > 0 ? (
             <ul
-              key={`${categories.join()}-${time}-${cost}-${shuffleKey}`}
+              key={`${category}-${time}-${cost}-${shuffleKey}`}
               className="grid grid-cols-1 gap-4 md:grid-cols-3"
             >
               {quests.map((quest) => (

@@ -21,7 +21,7 @@ export type Quest = {
 }
 
 export type QuestFilters = {
-  categories: Category[]
+  category: Category
   times: TimeCommitment[]
   costs: Cost[]
 }
@@ -91,9 +91,10 @@ function mapRowToQuest(row: QuestRow): Quest {
 }
 
 /**
- * Fetches up to 3 quests from Supabase, applying the active filters.
- * - Category: exact match when a single category chip is selected (`.in` for multiple).
+ * Fetches ALL quests matching the active filters from Supabase.
+ * - Category: exact match on the single selected category (`.eq`).
  * - Time / Cost: `.overlaps()` so a quest matches if ANY of its tags are selected.
+ * No result cap is applied so the shuffle can cycle through the full pool.
  */
 export async function fetchQuests(filters: QuestFilters): Promise<Quest[]> {
   const supabase = createClient()
@@ -101,10 +102,7 @@ export async function fetchQuests(filters: QuestFilters): Promise<Quest[]> {
   let query = supabase
     .from('Quests')
     .select('id, title, description, category, time_estimate, cost')
-
-  if (filters.categories.length > 0) {
-    query = query.in('category', filters.categories)
-  }
+    .eq('category', filters.category)
 
   if (filters.times.length > 0) {
     query = query.overlaps('time_estimate', filters.times)
@@ -114,22 +112,12 @@ export async function fetchQuests(filters: QuestFilters): Promise<Quest[]> {
     query = query.overlaps('cost', filters.costs)
   }
 
-  try {
-    const { data, error } = await query.limit(3)
+  const { data, error } = await query
 
-    console.log('Fetched Quests:', data)
-
-    if (error) {
-      console.error('Supabase Error:', error)
-      throw new Error(error.message)
-    }
-
-    return (data as QuestRow[]).map(mapRowToQuest)
-  } catch (err) {
-    console.error('Supabase Error:', err)
-    // Re-throw a normalized Error so SWR can expose `error.message` to the UI.
-    throw err instanceof Error
-      ? err
-      : new Error('Unknown error while querying Supabase')
+  if (error) {
+    console.error('Supabase Error:', error)
+    throw new Error(error.message)
   }
+
+  return (data as QuestRow[]).map(mapRowToQuest)
 }
