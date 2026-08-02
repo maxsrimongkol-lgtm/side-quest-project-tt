@@ -29,7 +29,7 @@ function shuffle<T>(items: T[]): T[] {
 }
 
 export default function Page() {
-  const [categories, setCategories] = useState<Category[]>([])
+  const [category, setCategory] = useState<Category | null>(null)
   const [time, setTime] = useState<TimeCommitment | null>(null)
   const [cost, setCost] = useState<Cost | null>(null)
   const [shuffleKey, setShuffleKey] = useState(0)
@@ -39,11 +39,11 @@ export default function Page() {
 
   const filters = useMemo<QuestFilters>(
     () => ({
-      categories,
+      categories: category ? [category] : [],
       times: time ? [time] : [],
       costs: cost ? [cost] : [],
     }),
-    [categories, time, cost],
+    [category, time, cost],
   )
 
   // Re-query Supabase only when the active filters change. Shuffling reuses
@@ -79,10 +79,10 @@ export default function Page() {
       <SiteHeader />
       <main className="mx-auto flex max-w-5xl flex-col gap-6 px-4 py-6 sm:px-6 sm:py-8">
         <FilterPanel
-          categories={categories}
+          category={category}
           time={time}
           cost={cost}
-          onCategoriesChange={setCategories}
+          onCategoryChange={setCategory}
           onTimeChange={setTime}
           onCostChange={setCost}
         />
@@ -114,7 +114,7 @@ export default function Page() {
             <QuestGridSkeleton />
           ) : quests.length > 0 ? (
             <ul
-              key={`${categories.join()}-${time}-${cost}-${shuffleKey}`}
+              key={`${category}-${time}-${cost}-${shuffleKey}`}
               className="grid grid-cols-1 gap-4 md:grid-cols-3"
             >
               {quests.map((quest) => (

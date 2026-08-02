@@ -11,10 +11,10 @@ import {
 } from '@/lib/quests'
 
 type FilterPanelProps = {
-  categories: Category[]
+  category: Category | null
   time: TimeCommitment | null
   cost: Cost | null
-  onCategoriesChange: (value: Category[]) => void
+  onCategoryChange: (value: Category | null) => void
   onTimeChange: (value: TimeCommitment | null) => void
   onCostChange: (value: Cost | null) => void
 }
@@ -42,10 +42,10 @@ function FilterGroup({
 }
 
 export function FilterPanel({
-  categories,
+  category,
   time,
   cost,
-  onCategoriesChange,
+  onCategoryChange,
   onTimeChange,
   onCostChange,
 }: FilterPanelProps) {
@@ -57,9 +57,10 @@ export function FilterPanel({
       <FilterGroup title="Category" headingId="filter-category">
         <ToggleGroup
           aria-labelledby="filter-category"
-          multiple
-          value={categories}
-          onValueChange={(value) => onCategoriesChange(value as Category[])}
+          value={category ? [category] : []}
+          onValueChange={(value) =>
+            onCategoryChange((value[value.length - 1] as Category) ?? null)
+          }
           variant="outline"
           spacing={2}
           className="flex-wrap"
