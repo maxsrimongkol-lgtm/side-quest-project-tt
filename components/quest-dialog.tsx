@@ -17,6 +17,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { QuestBadges } from '@/components/quest-badges'
 import { CATEGORY_IMAGES, type Quest } from '@/lib/quests'
+import { logEvent } from '@/lib/analytics'
 
 type SubmitState = 'idle' | 'submitting' | 'accepted'
 
@@ -77,6 +78,10 @@ export function QuestDialog({
     // Prevent multiple submissions while a request is in flight or done.
     if (status !== 'idle' || !quest) return
     acceptedTitleRef.current = quest.title
+    logEvent({
+      event_type: 'Quest_Accepted',
+      metadata: { quest_id: quest.id, title: quest.title },
+    })
     setStatus('submitting')
     try {
       // Simulate a network request to accept the quest.

@@ -9,6 +9,7 @@ import {
   type Cost,
   type TimeCommitment,
 } from '@/lib/quests'
+import { logEvent } from '@/lib/analytics'
 
 type FilterPanelProps = {
   category: Category | null
@@ -58,9 +59,16 @@ export function FilterPanel({
         <ToggleGroup
           aria-labelledby="filter-category"
           value={category ? [category] : []}
-          onValueChange={(value) =>
-            onCategoryChange((value[value.length - 1] as Category) ?? null)
-          }
+          onValueChange={(value) => {
+            const next = (value[value.length - 1] as Category) ?? null
+            if (next) {
+              logEvent({
+                event_type: 'Filter_Click',
+                metadata: { filter_type: 'category', value: next },
+              })
+            }
+            onCategoryChange(next)
+          }}
           variant="outline"
           spacing={2}
           className="flex-wrap"
@@ -82,9 +90,16 @@ export function FilterPanel({
         <ToggleGroup
           aria-labelledby="filter-time"
           value={time ? [time] : []}
-          onValueChange={(value) =>
-            onTimeChange((value[value.length - 1] as TimeCommitment) ?? null)
-          }
+          onValueChange={(value) => {
+            const next = (value[value.length - 1] as TimeCommitment) ?? null
+            if (next) {
+              logEvent({
+                event_type: 'Filter_Click',
+                metadata: { filter_type: 'time', value: next },
+              })
+            }
+            onTimeChange(next)
+          }}
           variant="outline"
           spacing={2}
           className="flex-wrap"
@@ -106,9 +121,16 @@ export function FilterPanel({
         <ToggleGroup
           aria-labelledby="filter-cost"
           value={cost ? [cost] : []}
-          onValueChange={(value) =>
-            onCostChange((value[value.length - 1] as Cost) ?? null)
-          }
+          onValueChange={(value) => {
+            const next = (value[value.length - 1] as Cost) ?? null
+            if (next) {
+              logEvent({
+                event_type: 'Filter_Click',
+                metadata: { filter_type: 'cost', value: next },
+              })
+            }
+            onCostChange(next)
+          }}
           variant="outline"
           spacing={2}
           className="flex-wrap"

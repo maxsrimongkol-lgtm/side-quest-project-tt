@@ -18,6 +18,7 @@ import {
   type QuestFilters,
   type TimeCommitment,
 } from '@/lib/quests'
+import { logEvent } from '@/lib/analytics'
 
 function shuffle<T>(items: T[]): T[] {
   const arr = [...items]
@@ -74,6 +75,17 @@ export default function Page() {
     setDialogOpen(true)
   }
 
+  function handleShuffle() {
+    const activeFilters = [category, time, cost].filter(
+      (value): value is string => Boolean(value),
+    )
+    logEvent({
+      event_type: 'Reroll',
+      metadata: { active_filters: activeFilters },
+    })
+    setShuffleKey((key) => key + 1)
+  }
+
   return (
     <div className="min-h-svh bg-background">
       <SiteHeader />
@@ -90,7 +102,7 @@ export default function Page() {
         <div className="flex justify-center sm:justify-start">
           <Button
             size="lg"
-            onClick={() => setShuffleKey((key) => key + 1)}
+            onClick={handleShuffle}
             className="w-full sm:w-auto"
           >
             <Shuffle aria-hidden="true" />
