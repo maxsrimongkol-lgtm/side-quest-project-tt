@@ -11,10 +11,10 @@ import {
 } from '@/lib/quests'
 
 type FilterPanelProps = {
-  category: Category
+  categories: Category[]
   time: TimeCommitment | null
   cost: Cost | null
-  onCategoryChange: (value: Category) => void
+  onCategoriesChange: (value: Category[]) => void
   onTimeChange: (value: TimeCommitment | null) => void
   onCostChange: (value: Cost | null) => void
 }
@@ -42,10 +42,10 @@ function FilterGroup({
 }
 
 export function FilterPanel({
-  category,
+  categories,
   time,
   cost,
-  onCategoryChange,
+  onCategoriesChange,
   onTimeChange,
   onCostChange,
 }: FilterPanelProps) {
@@ -57,25 +57,21 @@ export function FilterPanel({
       <FilterGroup title="Category" headingId="filter-category">
         <ToggleGroup
           aria-labelledby="filter-category"
-          value={[category]}
-          onValueChange={(value) => {
-            // Keep exactly one category selected: ignore attempts to
-            // deselect the active chip, otherwise switch to the new one.
-            const next = value[value.length - 1] as Category | undefined
-            if (next) onCategoryChange(next)
-          }}
+          multiple
+          value={categories}
+          onValueChange={(value) => onCategoriesChange(value as Category[])}
           variant="outline"
           spacing={2}
           className="flex-wrap"
         >
-          {CATEGORIES.map((category) => (
+          {CATEGORIES.map((option) => (
             <ToggleGroupItem
-              key={category}
-              value={category}
-              aria-label={`Filter by ${category}`}
+              key={option}
+              value={option}
+              aria-label={`Filter by ${option}`}
               className="rounded-full aria-pressed:border-primary! aria-pressed:bg-primary! aria-pressed:text-primary-foreground! aria-pressed:hover:bg-primary/90!"
             >
-              {category}
+              {option}
             </ToggleGroupItem>
           ))}
         </ToggleGroup>

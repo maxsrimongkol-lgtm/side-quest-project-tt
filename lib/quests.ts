@@ -21,7 +21,7 @@ export type Quest = {
 }
 
 export type QuestFilters = {
-  category: Category
+  categories: Category[]
   times: TimeCommitment[]
   costs: Cost[]
 }
@@ -92,7 +92,9 @@ function mapRowToQuest(row: QuestRow): Quest {
 
 /**
  * Fetches ALL quests matching the active filters from Supabase.
- * - Category: exact match on the single selected category (`.eq`).
+ * - Category: `.in()` matches any of the selected categories. When none are
+ *   selected, no category filter is applied so quests are pulled across the
+ *   entire pool.
  * - Time / Cost: `.overlaps()` so a quest matches if ANY of its tags are selected.
  * No result cap is applied so the shuffle can cycle through the full pool.
  */
@@ -102,7 +104,10 @@ export async function fetchQuests(filters: QuestFilters): Promise<Quest[]> {
   let query = supabase
     .from('Quests')
     .select('id, title, description, category, time_estimate, cost')
-    .eq('category', filters.category)
+
+  if (filters.categories.length > 0) {
+    query = query.in('category', filters.categories)
+  }
 
   if (filters.times.length > 0) {
     query = query.overlaps('time_estimate', filters.times)
