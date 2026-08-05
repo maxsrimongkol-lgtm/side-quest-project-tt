@@ -133,7 +133,7 @@ export function QuestDialog({
                 render={<Button variant="outline" />}
                 disabled={status === 'submitting'}
               >
-                Maybe later
+                Maybe Later
               </DialogClose>
               <Button
                 onClick={handleAccept}
