@@ -132,6 +132,12 @@ export function QuestDialog({
               <DialogClose
                 render={<Button variant="outline" />}
                 disabled={status === 'submitting'}
+                onClick={() =>
+                  logEvent({
+                    event_type: 'QuestDismissed',
+                    metadata: { quest_id: quest.id, title: quest.title },
+                  })
+                }
               >
                 Maybe Later
               </DialogClose>
