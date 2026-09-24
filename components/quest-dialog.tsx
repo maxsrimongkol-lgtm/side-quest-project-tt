@@ -17,7 +17,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { QuestBadges } from '@/components/quest-badges'
 import { CATEGORY_IMAGES, type Quest } from '@/lib/quests'
-import { logEvent } from '@/lib/analytics'
+import { trackEvent } from '@/lib/analytics'
 
 type SubmitState = 'idle' | 'submitting' | 'accepted'
 
@@ -78,15 +78,17 @@ export function QuestDialog({
     // Prevent multiple submissions while a request is in flight or done.
     if (status !== 'idle' || !quest) return
     acceptedTitleRef.current = quest.title
-    logEvent({
-      event_type: 'Quest_Accepted',
-      metadata: { quest_id: quest.id, title: quest.title },
+    trackEvent('button_click', {
+      button_name: 'accept_quest',
+      category: quest.category,
     })
     setStatus('submitting')
     try {
       // Simulate a network request to accept the quest.
       await new Promise((resolve) => setTimeout(resolve, 1500))
       setStatus('accepted')
+      // The core action (accepting a quest) completed successfully.
+      trackEvent('core_action_completed', { category: quest.category })
     } catch {
       setStatus('idle')
     }
@@ -133,9 +135,9 @@ export function QuestDialog({
                 render={<Button variant="outline" />}
                 disabled={status === 'submitting'}
                 onClick={() =>
-                  logEvent({
-                    event_type: 'QuestDismissed',
-                    metadata: { quest_id: quest.id, title: quest.title },
+                  trackEvent('button_click', {
+                    button_name: 'maybe_later',
+                    category: quest.category,
                   })
                 }
               >

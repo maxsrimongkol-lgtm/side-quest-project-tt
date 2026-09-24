@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import useSWR from 'swr'
 import { Shuffle } from 'lucide-react'
 
@@ -18,7 +18,7 @@ import {
   type QuestFilters,
   type TimeCommitment,
 } from '@/lib/quests'
-import { logEvent } from '@/lib/analytics'
+import { trackEvent } from '@/lib/analytics'
 
 function shuffle<T>(items: T[]): T[] {
   const arr = [...items]
@@ -37,6 +37,11 @@ export default function Page() {
 
   const [selectedQuest, setSelectedQuest] = useState<Quest | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
+
+  // Track a single page view on initial mount.
+  useEffect(() => {
+    trackEvent('page_view')
+  }, [])
 
   const filters = useMemo<QuestFilters>(
     () => ({
@@ -76,14 +81,12 @@ export default function Page() {
   }
 
   function handleShuffle() {
-    const activeFilters = [category, time, cost].filter(
-      (value): value is string => Boolean(value),
-    )
-    logEvent({
-      event_type: 'Reroll',
-      metadata: { active_filters: activeFilters },
+    const nextCount = shuffleKey + 1
+    trackEvent('reroll_clicked', {
+      reroll_count: nextCount,
+      category: category ?? 'all',
     })
-    setShuffleKey((key) => key + 1)
+    setShuffleKey(nextCount)
   }
 
   return (
