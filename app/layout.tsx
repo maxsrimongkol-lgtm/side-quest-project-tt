@@ -2,6 +2,7 @@ import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
 import { Space_Grotesk, Inter } from 'next/font/google'
 import './globals.css'
+import Footer from '@/components/footer';
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
@@ -57,6 +58,7 @@ export default function RootLayout({
       <body className="font-sans antialiased">
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}
+        <Footer />
       </body>
     </html>
   )
