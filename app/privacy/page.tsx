@@ -1,5 +1,5 @@
 export default function PrivacyPage() {
-  // Paste your raw Termly HTML string below
+  // Your existing Termly HTML code stays inside these backticks:
   const htmlContent = `
     <style>
   [data-custom-class='body'], [data-custom-class='body'] * {
@@ -60,8 +60,9 @@ word-break: break-word !important;
 
   return (
     <main className="container mx-auto max-w-4xl py-12 px-4 min-h-screen">
+      {/* Update ONLY this div's className below to add the styling fix */}
       <div
-        className="prose dark:prose-invert max-w-none"
+        className="prose dark:prose-invert max-w-none text-foreground dark:text-slate-100 [&_*]:!text-inherit"
         dangerouslySetInnerHTML={{ __html: htmlContent }}
       />
     </main>
