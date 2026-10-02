@@ -55,3 +55,5 @@ export async function trackEvent(
     console.error('Unexpected error tracking event:', err)
   }
 }
+
+export const logEvent = trackEvent;
