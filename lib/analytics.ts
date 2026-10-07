@@ -1,59 +1,37 @@
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabaseClient';
 
-const SESSION_STORAGE_KEY = 'app_session_id'
+// 1. Map present-tense or legacy string inputs to standard past-tense database names
+const EVENT_NAME_MAP: Record<string, string> = {
+  button_click: 'button_clicked',
+  click: 'button_clicked',
+  filter_click: 'filter_clicked',
+  reroll: 'reroll_clicked',
+  click_reroll: 'reroll_clicked',
+  page_view: 'page_viewed',
+};
 
-/**
- * Retrieves the persistent session_id from localStorage or generates a new UUID.
- */
-export function getSessionId(): string {
-  if (typeof window === 'undefined') return ''
-
-  let sessionId = localStorage.getItem(SESSION_STORAGE_KEY)
-  if (!sessionId) {
-    sessionId = crypto.randomUUID()
-    localStorage.setItem(SESSION_STORAGE_KEY, sessionId)
-  }
-  return sessionId
-}
-
-/**
- * Standardizes event names to clean lowercase snake_case.
- * e.g., "Reroll_Clicked" or "Core Action Completed" -> "core_action_completed"
- */
-function sanitizeEventType(eventType: string): string {
-  return eventType
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, '_') // replaces spaces with underscores
-}
-
-/**
- * Logs a structured event to the Supabase analytics table.
- */
-export async function trackEvent(
-  eventType: string,
-  metadata: Record<string, any> = {}
+export async function logEvent(
+  rawEventType: string,
+  metadata: Record<string, unknown> = {}
 ) {
-  try {
-    const supabase = createClient()
-    const sessionId = getSessionId()
-    const cleanEventType = sanitizeEventType(eventType)
+  // 2. Resolve to standardized past-tense string (or keep original if already past-tense)
+  const eventType = EVENT_NAME_MAP[rawEventType] || rawEventType;
 
-    const { error } = await supabase.from('analytics').insert([
-      {
-        event_type: cleanEventType,
-        session_id: sessionId,
-        user_id: null, // Populated automatically if you add user authentication later
-        metadata,
-      },
+  // 3. Lowercase metadata keys & string values automatically (e.g., Category -> category, AI_Tools -> ai_tools)
+  const sanitizedMetadata = Object.fromEntries(
+    Object.entries(metadata).map(([key, val]) => [
+      key.toLowerCase(),
+      typeof val === 'string' ? val.toLowerCase() : val,
     ])
+  );
 
-    if (error) {
-      console.error('Failed to log analytics event:', error.message)
-    }
-  } catch (err) {
-    console.error('Unexpected error tracking event:', err)
+  // 4. Insert into Supabase analytics table
+  const { error } = await supabase.from('analytics').insert({
+    event_type: eventType,
+    metadata: sanitizedMetadata,
+  });
+
+  if (error) {
+    console.error('Failed to log event:', error);
   }
 }
-
-export const logEvent = trackEvent;
