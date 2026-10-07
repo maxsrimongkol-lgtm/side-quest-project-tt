@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
 
-// 1. Map present-tense or legacy string inputs to standard past-tense database names
+// 1. Map present-tense/legacy string inputs to standard past-tense database names
 const EVENT_NAME_MAP: Record<string, string> = {
   button_click: 'button_clicked',
   click: 'button_clicked',
@@ -37,7 +37,7 @@ export async function logEvent(
   }
 }
 
-// Aliases for backwards compatibility across components
+// 5. Backwards-compatibility aliases for all component import styles
 export const trackEvent = logEvent;
 export const track = logEvent;
 export default logEvent;
