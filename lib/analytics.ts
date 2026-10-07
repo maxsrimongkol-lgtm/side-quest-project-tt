@@ -37,5 +37,7 @@ export async function logEvent(
   }
 }
 
-// 5. Alias trackEvent to logEvent so legacy imports don't break the build
+// Aliases for backwards compatibility across components
 export const trackEvent = logEvent;
+export const track = logEvent;
+export default logEvent;
