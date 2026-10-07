@@ -94,7 +94,7 @@ export function FilterPanel({
             const next = (value[value.length - 1] as TimeCommitment) ?? null
             if (next) {
               logEvent({
-                event_type: 'Filter_Click',
+                event_type: 'filter_clicked',
                 metadata: { filter_type: 'time', value: next },
               })
             }
@@ -125,7 +125,7 @@ export function FilterPanel({
             const next = (value[value.length - 1] as Cost) ?? null
             if (next) {
               logEvent({
-                event_type: 'Filter_Click',
+                event_type: 'filter_clicked',
                 metadata: { filter_type: 'cost', value: next },
               })
             }

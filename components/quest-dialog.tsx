@@ -78,7 +78,7 @@ export function QuestDialog({
     // Prevent multiple submissions while a request is in flight or done.
     if (status !== 'idle' || !quest) return
     acceptedTitleRef.current = quest.title
-    trackEvent('button_click', {
+    trackEvent('button_clicked', {
       button_name: 'accept_quest',
       category: quest.category,
     })
@@ -135,7 +135,7 @@ export function QuestDialog({
                 render={<Button variant="outline" />}
                 disabled={status === 'submitting'}
                 onClick={() =>
-                  trackEvent('button_click', {
+                  trackEvent('button_clicked', {
                     button_name: 'maybe_later',
                     category: quest.category,
                   })

@@ -1,9 +1,9 @@
 import { createClient } from '@/lib/supabase/client';
 
-// Initialize the browser client instance
+// 1. Initialize the browser client instance
 const supabase = createClient();
 
-// 1. Map present-tense or legacy string inputs to standard past-tense database names
+// 2. Map present-tense/legacy string inputs to standard past-tense database names
 const EVENT_NAME_MAP: Record<string, string> = {
   button_click: 'button_clicked',
   click: 'button_clicked',
@@ -14,14 +14,15 @@ const EVENT_NAME_MAP: Record<string, string> = {
   page_view: 'page_viewed',
 };
 
+// 3. Export the primary logging function
 export async function logEvent(
   rawEventType: string,
   metadata: Record<string, unknown> = {}
 ) {
-  // 2. Resolve to standardized past-tense string (or keep original if already past-tense)
+  // Resolve to standardized past-tense string (or keep original if already past-tense)
   const eventType = EVENT_NAME_MAP[rawEventType] || rawEventType;
 
-  // 3. Lowercase metadata keys & string values automatically
+  // Lowercase metadata keys & string values automatically
   const sanitizedMetadata = Object.fromEntries(
     Object.entries(metadata).map(([key, val]) => [
       key.toLowerCase(),
@@ -29,7 +30,7 @@ export async function logEvent(
     ])
   );
 
-  // 4. Insert into Supabase analytics table
+  // Insert into Supabase analytics table
   const { error } = await supabase.from('analytics').insert({
     event_type: eventType,
     metadata: sanitizedMetadata,
@@ -40,7 +41,7 @@ export async function logEvent(
   }
 }
 
-// Backwards-compatibility aliases for all component import styles
+// 4. Backwards-compatibility aliases for all component import styles
 export const trackEvent = logEvent;
 export const track = logEvent;
 export default logEvent;
