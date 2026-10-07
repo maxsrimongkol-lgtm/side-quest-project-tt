@@ -20,7 +20,7 @@ const EVENT_NAME_MAP: Record<string, string> = {
   filter_change: 'filter_clicked',
 };
 
-// Helper to manage or generate a persistent anon session ID
+// 2. Helper to manage or generate a persistent anonymous session ID in the browser
 function getSessionId(): string {
   if (typeof window === 'undefined') return 'server_session';
   let sessionId = localStorage.getItem('analytics_session_id');
@@ -37,15 +37,19 @@ export async function logEvent(
 ) {
   const supabase = createClient();
 
-  // 2. Resolve to standardized past-tense string
+  // Standardize event name
   const eventType = EVENT_NAME_MAP[rawEventType] || rawEventType;
 
-  // 3. Automatically attach session ID and resolve current auth user ID
+  // Resolve session ID
   const sessionId = getSessionId();
-  const { data: { user } } = await supabase.auth.getUser();
-  const userId = user?.id || null;
 
-  // 4. Lowercase metadata keys & string values automatically
+  // Resolve auth user (if logged in)
+  const { data: { user } } = await supabase.auth.getUser();
+
+  // CRITICAL FIX: Fall back to sessionId if user is browsing anonymously
+  const userId = user?.id || sessionId;
+
+  // Lowercase metadata keys & string values automatically
   const sanitizedMetadata = Object.fromEntries(
     Object.entries(metadata).map(([key, val]) => [
       key.toLowerCase(),
@@ -53,7 +57,7 @@ export async function logEvent(
     ])
   );
 
-  // 5. Insert payload into Supabase analytics table
+  // Insert payload into Supabase analytics table
   const { error } = await supabase.from('analytics').insert({
     event_type: eventType,
     user_id: userId,
@@ -66,7 +70,7 @@ export async function logEvent(
   }
 }
 
-// Backwards-compatibility aliases
+// Backwards-compatibility exports for all existing components
 export const trackEvent = logEvent;
 export const track = logEvent;
 export default logEvent;
