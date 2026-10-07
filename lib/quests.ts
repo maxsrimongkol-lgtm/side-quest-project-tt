@@ -91,18 +91,14 @@ function mapRowToQuest(row: QuestRow): Quest {
 }
 
 /**
- * Fetches ALL quests matching the active filters from Supabase.
- * - Category: `.in()` matches any of the selected categories. When none are
- *   selected, no category filter is applied so quests are pulled across the
- *   entire pool.
- * - Time / Cost: `.overlaps()` so a quest matches if ANY of its tags are selected.
- * No result cap is applied so the shuffle can cycle through the full pool.
+ * Fetches ALL quests matching active filters from Supabase.
  */
 export async function fetchQuests(filters: QuestFilters): Promise<Quest[]> {
   const supabase = createClient()
 
+  // Use lowercase 'quests' to align with standard Supabase table names
   let query = supabase
-    .from('Quests')
+    .from('quests')
     .select('id, title, description, category, time_estimate, cost')
 
   if (filters.categories.length > 0) {
@@ -120,8 +116,8 @@ export async function fetchQuests(filters: QuestFilters): Promise<Quest[]> {
   const { data, error } = await query
 
   if (error) {
-    console.error('Supabase Error:', error)
-    throw new Error(error.message)
+    console.error('Supabase fetch error:', error)
+    return []
   }
 
   return (data as QuestRow[]).map(mapRowToQuest)
