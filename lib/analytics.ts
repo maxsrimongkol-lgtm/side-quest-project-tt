@@ -5,6 +5,7 @@ const EVENT_NAME_MAP: Record<string, string> = {
   button_click: 'button_clicked',
   click: 'button_clicked',
   filter_click: 'filter_clicked',
+  reroll_clicked: 'reroll_clicked',
   reroll: 'reroll_clicked',
   click_reroll: 'reroll_clicked',
   page_view: 'page_viewed',
@@ -17,7 +18,7 @@ export async function logEvent(
   // 2. Resolve to standardized past-tense string (or keep original if already past-tense)
   const eventType = EVENT_NAME_MAP[rawEventType] || rawEventType;
 
-  // 3. Lowercase metadata keys & string values automatically (e.g., Category -> category, AI_Tools -> ai_tools)
+  // 3. Lowercase metadata keys & string values automatically
   const sanitizedMetadata = Object.fromEntries(
     Object.entries(metadata).map(([key, val]) => [
       key.toLowerCase(),
@@ -35,3 +36,6 @@ export async function logEvent(
     console.error('Failed to log event:', error);
   }
 }
+
+// 5. Alias trackEvent to logEvent so legacy imports don't break the build
+export const trackEvent = logEvent;
