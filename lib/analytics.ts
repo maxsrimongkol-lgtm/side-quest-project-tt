@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabaseClient';
+import { supabase } from '@/lib/supabase';
 
 // 1. Map present-tense/legacy string inputs to standard past-tense database names
 const EVENT_NAME_MAP: Record<string, string> = {
