@@ -4,19 +4,23 @@ export async function logEvent(
   rawEventType: string,
   metadata: Record<string, unknown> = {}
 ) {
+  console.log('⚡ logEvent triggered with:', { rawEventType, metadata });
+
   try {
     const supabase = createClient();
 
-    const { error } = await supabase.from('analytics').insert({
+    const { data, error } = await supabase.from('analytics').insert({
       event_type: rawEventType,
-      metadata,
-    });
+      metadata: metadata,
+    }).select();
 
     if (error) {
-      console.error('Analytics log error:', error.message);
+      console.error('❌ Supabase insert failed:', error);
+    } else {
+      console.log('✅ Supabase insert succeeded:', data);
     }
   } catch (err) {
-    console.error('Failed to send telemetry:', err);
+    console.error('❌ Unexpected analytics error:', err);
   }
 }
 
